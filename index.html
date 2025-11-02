@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>王英俊的温馨提示</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        /* 手机适配的提示窗口 */
+        .tip-window {
+            position: absolute;
+            width: 70%;          /* 宽度占屏幕70% */
+            max-width: 300px;    /* 最大宽度限制 */
+            padding: 15px 0;     /* 上下内边距，保证高度适中 */
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            z-index: 1000;
+            font-family: "微软雅黑", sans-serif;
+            font-size: 5vw;      /* 字体大小随屏幕宽度自动调整 */
+            text-align: center;  /* 文字居中，避免换行混乱 */
+            transition: all 0.3s ease;
+        }
+
+        /* 横屏适配 */
+        @media (orientation: landscape) {
+            .tip-window {
+                font-size: 3vh;  /* 横屏时用高度比例控制字体 */
+                padding: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const tips = [
+            '多喝水哦~', '保持微笑呀', '元气满满',
+            '记得吃水果', '保持好心情', '好好爱自己', '我想你了',
+            '记得想我哦～', '期待下我们每一次见面', '爱你呦小妹妹',
+            '我滴小bb啊', '要多多沟通哦', '让所有烦恼都滚滚滚', '好好吃饭哦',  '星怡我爱你', '阳阳永远爱你',
+            '别熬夜', '天天开心', '天冷了，多穿衣服'
+        ];
+
+        const bgColors = [
+            'rgb(255, 182, 193)', // lightpink
+            'rgb(135, 206, 235)', // skyblue
+            'rgb(144, 238, 144)', // lightgreen
+            'rgb(230, 230, 250)', // lavender
+            'rgb(255, 255, 224)', // lightyellow
+            'rgb(221, 160, 221)', // plum
+            'rgb(255, 127, 80)'   // coral
+        ];
+
+        const config = {
+            totalCount: 100,       // 窗口总数（手机适合20个）
+            totalPopTime: 20,     // 20秒内弹完
+            closeDelay: 5        // 弹完后15秒关闭
+        };
+
+        const windows = [];
+        const interval = (config.totalPopTime * 1000) / config.totalCount;
+
+        // 修复窗口位置计算（确保在手机屏幕内）
+        function createTipWindow() {
+            const windowElem = document.createElement('div');
+            windowElem.className = 'tip-window';
+
+            // 随机内容
+            const tip = tips[Math.floor(Math.random() * tips.length)];
+            const bgColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+            windowElem.textContent = tip;
+            windowElem.style.backgroundColor = bgColor;
+
+            // 关键：先添加到页面再获取实际尺寸（解决动态尺寸计算问题）
+            document.body.appendChild(windowElem);
+            
+            // 获取窗口实际宽高（因屏幕尺寸不同，百分比换算后尺寸不固定）
+            const windowWidth = windowElem.offsetWidth;
+            const windowHeight = windowElem.offsetHeight;
+            
+            // 获取手机屏幕尺寸（包含安全区域，避免被刘海遮挡）
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // 计算随机位置（左右留10px边距，上下留20px边距，避免贴边）
+            const maxX = screenWidth - windowWidth - 20; // 减20px避免贴左右边
+            const maxY = screenHeight - windowHeight - 40; // 减40px避免贴上下边
+            const x = 10 + Math.floor(Math.random() * maxX); // 加10px左边距
+            const y = 20 + Math.floor(Math.random() * maxY); // 加20px上边距
+
+            // 设置最终位置
+            windowElem.style.left = `${x}px`;
+            windowElem.style.top = `${y}px`;
+
+            windows.push(windowElem);
+        }
+
+        // 批量创建窗口
+        let currentIndex = 0;
+        const createTimer = setInterval(() => {
+            if (currentIndex < config.totalCount) {
+                createTipWindow();
+                currentIndex++;
+            } else {
+                clearInterval(createTimer);
+                setTimeout(closeAllWindows, config.closeDelay * 1000);
+            }
+        }, interval);
+
+        // 关闭所有窗口（带动画）
+        function closeAllWindows() {
+            windows.forEach(windowElem => {
+                windowElem.style.opacity = '0';
+                windowElem.style.transform = 'scale(0.8)';
+                setTimeout(() => windowElem.remove(), 300);
+            });
+        }
+    </script>
+</body>
+</html>
